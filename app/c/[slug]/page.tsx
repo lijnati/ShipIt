@@ -9,7 +9,11 @@ import { buttonVariants } from "@/components/ui/button";
 import { ChallengeStatusPanel } from "@/app/c/[slug]/status-panel";
 import { getChallengeBySlug } from "@/db/queries/challenges";
 import { getCurrentShipItUser } from "@/lib/auth";
+import { ShareChallenge } from "@/components/shipit/share-challenge";
+import { getChallengeState } from "@/lib/challenge-status";
 import { getRequestTime } from "@/lib/request-time";
+import { getChallengeMeta } from "@/lib/share";
+import { challengePath, siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 // Shared by generateMetadata and the page so the lookup runs once per request.
@@ -25,10 +29,24 @@ const findChallenge = cache(async (slug: string) => {
 export async function generateMetadata({ params }: PageProps<"/c/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const challenge = await findChallenge(slug);
-  if (!challenge) return { title: "Promise not found" };
+  if (!challenge) return { title: "Promise not found", robots: { index: false } };
+
+  const now = getRequestTime();
+  const state = getChallengeState(challenge, now);
+  const { title, description } = getChallengeMeta(
+    { ...challenge, username: challenge.user.username },
+    state,
+    now,
+  );
+  const path = challengePath(challenge.slug);
+
+  // og:image / twitter:image come from opengraph-image.tsx / twitter-image.tsx.
   return {
-    title: `@${challenge.user.username} promised: ${challenge.title}`,
-    description: `@${challenge.user.username} publicly promised to ship "${challenge.title}". Watch them ship it — or not.`,
+    title: { absolute: title },
+    description,
+    alternates: { canonical: path },
+    openGraph: { type: "article", url: path, siteName: siteConfig.name, title, description },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
@@ -77,6 +95,17 @@ export default async function ChallengePage({ params }: PageProps<"/c/[slug]">) 
         creatorName={user.displayName ?? `@${user.username}`}
         serverNow={serverNow}
         canShip={isOwner}
+      />
+
+      {/* Anyone can share a public promise; owners get the loud version. */}
+      <ShareChallenge
+        slug={challenge.slug}
+        title={challenge.title}
+        username={user.username}
+        status={challenge.status}
+        deadline={challenge.deadline.toISOString()}
+        serverNow={serverNow}
+        perspective={isOwner ? "owner" : "visitor"}
       />
 
       {/* Details */}
