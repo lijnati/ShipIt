@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Plus } from "lucide-react";
-import { LocalDateTime } from "@/components/shipit/local-date-time";
 import { buttonVariants } from "@/components/ui/button";
+import { ChallengeRow } from "@/app/dashboard/challenge-row";
 import { getChallengesByUserId } from "@/db/queries/challenges";
 import { requireUsername } from "@/lib/auth";
+import { toChallengeCard } from "@/lib/challenge-card";
+import { getRequestTime } from "@/lib/request-time";
 import { routes, siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +16,8 @@ export default async function DashboardPage() {
   const user = await requireUsername();
   // Scoped to the session's own user id — never a parameter.
   const challenges = await getChallengesByUserId(user.id);
+  const creator = { username: user.username, avatarUrl: user.avatarUrl };
+  const serverNow = getRequestTime();
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-20">
@@ -46,32 +50,11 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <ul className="mt-10 border-2 border-foreground bg-card shadow-brutal">
-          {challenges.map((challenge) => {
-            const shipped = challenge.status === "shipped";
-            return (
-              <li key={challenge.slug} className="border-foreground not-last:border-b-2">
-                <Link
-                  href={`/c/${challenge.slug}`}
-                  className="flex flex-col gap-2 px-4 py-4 hover:bg-secondary focus-visible:bg-secondary sm:flex-row sm:items-center sm:gap-4 sm:px-5"
-                >
-                  <span
-                    className={cn(
-                      "w-fit shrink-0 border-2 border-foreground px-2 py-0.5 font-mono text-xs font-bold tracking-wider uppercase",
-                      shipped ? "bg-shipped" : "bg-active",
-                    )}
-                  >
-                    {shipped ? "Shipped" : "Active"}
-                  </span>
-                  <span className="min-w-0 flex-1 font-heading text-lg font-extrabold tracking-tight break-words">
-                    {challenge.title}
-                  </span>
-                  <span className="shrink-0 font-mono text-sm text-muted-foreground">
-                    <LocalDateTime value={challenge.deadline.toISOString()} format="date" />
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
+          {challenges.map((challenge) => (
+            <li key={challenge.slug} className="border-foreground not-last:border-b-2">
+              <ChallengeRow challenge={toChallengeCard(challenge, creator)} serverNow={serverNow} />
+            </li>
+          ))}
         </ul>
       )}
 

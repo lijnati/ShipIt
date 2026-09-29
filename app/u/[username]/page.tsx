@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { Avatar } from "@/components/shipit/avatar";
-import { ChallengeCard, toChallengeCard } from "@/components/shipit/challenge-card";
+import { ChallengeCard } from "@/components/shipit/challenge-card";
 import { getChallengesByUserId } from "@/db/queries/challenges";
 import { getUserByUsername } from "@/db/queries/users";
+import { toChallengeCard } from "@/lib/challenge-card";
+import { getRequestTime } from "@/lib/request-time";
 import { validateUsername } from "@/lib/username";
 
 // Shared by generateMetadata and the page so the lookup runs once per request.
@@ -37,6 +39,7 @@ export default async function ProfilePage({ params }: PageProps<"/u/[username]">
   const challenges = await getChallengesByUserId(user.id);
   // Only public fields reach the cards.
   const creator = { username: user.username, avatarUrl: user.avatarUrl };
+  const serverNow = getRequestTime();
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
@@ -67,7 +70,11 @@ export default async function ProfilePage({ params }: PageProps<"/u/[username]">
         <ul className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {challenges.map((challenge) => (
             <li key={challenge.slug} className="flex">
-              <ChallengeCard challenge={toChallengeCard(challenge, creator)} className="w-full" />
+              <ChallengeCard
+                challenge={toChallengeCard(challenge, creator)}
+                serverNow={serverNow}
+                className="w-full"
+              />
             </li>
           ))}
         </ul>
