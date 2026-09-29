@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/shipit/logo";
-import { navLinks } from "@/lib/site";
+import { navLinks, siteConfig } from "@/lib/site";
 
 export function Footer() {
   return (
@@ -27,7 +27,7 @@ export function Footer() {
           </ul>
         </nav>
         <p className="font-mono text-xs text-muted-foreground">
-          © {new Date().getFullYear()} shipit.xylolabs.space
+          © {new Date().getFullYear()} {siteConfig.domain}
         </p>
       </div>
     </footer>

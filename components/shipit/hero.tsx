@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ChallengeCard } from "@/components/shipit/challenge-card";
 import { featuredChallenge, mockStats } from "@/lib/mock-challenges";
-import { routes } from "@/lib/site";
+import { routes, siteConfig } from "@/lib/site";
 
 export function Hero() {
   return (
@@ -64,7 +64,7 @@ export function Hero() {
 
       <div className="mx-auto w-full max-w-md lg:max-w-none">
         <p className="mb-3 truncate font-mono text-xs text-muted-foreground">
-          shipit.xylolabs.space/c/
+          {siteConfig.domain}/c/
           <span className="text-foreground">ship-my-contract-reminder-mvp</span>
         </p>
         <ChallengeCard
