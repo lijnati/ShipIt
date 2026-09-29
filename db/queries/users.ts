@@ -102,7 +102,7 @@ export async function claimUsername(
 }
 
 /** Postgres unique_violation (23505), optionally on a specific constraint. */
-function isUniqueViolation(error: unknown, constraint?: string): boolean {
+export function isUniqueViolation(error: unknown, constraint?: string): boolean {
   // Drizzle wraps driver errors in DrizzleQueryError; the Postgres error is the cause.
   for (let e: unknown = error; e instanceof Error; e = e.cause) {
     const pg = e as Error & { code?: unknown; constraint?: unknown };
