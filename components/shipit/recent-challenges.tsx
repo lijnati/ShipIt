@@ -42,8 +42,8 @@ export function RecentChallenges() {
 
         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {recentChallenges.map((challenge) => (
-            <li key={challenge.id} className="flex">
-              <ChallengeCard challenge={challenge} className="w-full" />
+            <li key={challenge.slug} className="flex">
+              <ChallengeCard challenge={challenge} linked={false} className="w-full" />
             </li>
           ))}
         </ul>

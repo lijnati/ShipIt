@@ -64,12 +64,13 @@ export function Hero() {
 
       <div className="mx-auto w-full max-w-md lg:max-w-none">
         <p className="mb-3 truncate font-mono text-xs text-muted-foreground">
-          shipit.xylolabs.space/
-          <span className="text-foreground">nahtty/contract-reminder-mvp</span>
+          shipit.xylolabs.space/c/
+          <span className="text-foreground">ship-my-contract-reminder-mvp</span>
         </p>
         <ChallengeCard
           challenge={featuredChallenge}
           featured
+          linked={false}
           className="lg:rotate-1"
         />
         <p className="mt-5 text-right font-mono text-xs text-muted-foreground">

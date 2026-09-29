@@ -1,84 +1,67 @@
-export type ChallengeStatus = "ACTIVE" | "SHIPPED" | "FAILED";
+import type { ChallengeCardData } from "@/components/shipit/challenge-card";
 
-export type Challenge = {
-  id: number;
-  creator: string;
-  title: string;
-  /** ISO date string. */
-  deadline: string;
-  status: ChallengeStatus;
-  /**
-   * Pre-formatted time delta. Meaning depends on status:
-   * ACTIVE → time remaining, SHIPPED → how early, FAILED → how late.
-   */
-  timeLabel: string;
-  watchers: number;
-};
+// Marketing examples for the landing page. Not real challenges; cards built
+// from these are rendered unlinked.
 
-export const featuredChallenge: Challenge = {
-  id: 1042,
-  creator: "Nahtty",
+const creator = (username: string) => ({ username, avatarUrl: null });
+
+export const featuredChallenge: ChallengeCardData = {
+  slug: "ship-my-contract-reminder-mvp",
+  creator: creator("nahtty"),
   title: "Ship my contract reminder MVP",
-  deadline: "2026-10-03",
+  deadline: "2026-10-03T23:59:00Z",
   status: "ACTIVE",
   timeLabel: "2d 14h",
-  watchers: 214,
 };
 
-export const recentChallenges: Challenge[] = [
+export const recentChallenges: ChallengeCardData[] = [
   {
-    id: 1041,
-    creator: "marta.dev",
+    slug: "launch-my-chrome-extension-on-product-hunt",
+    creator: creator("marta_dev"),
     title: "Launch my Chrome extension on Product Hunt",
-    deadline: "2026-09-30",
+    deadline: "2026-09-30T17:00:00Z",
     status: "ACTIVE",
     timeLabel: "19h",
-    watchers: 87,
   },
   {
-    id: 1039,
-    creator: "kenji",
+    slug: "ship-v1-of-my-invoice-parser-api",
+    creator: creator("kenji"),
     title: "Ship v1 of my invoice parser API",
-    deadline: "2026-09-28",
+    deadline: "2026-09-28T12:00:00Z",
     status: "SHIPPED",
     timeLabel: "3h",
-    watchers: 142,
   },
   {
-    id: 1036,
-    creator: "dropout_dan",
+    slug: "finish-the-onboarding-flow-i-keep-redesigning",
+    creator: creator("dropout_dan"),
     title: "Finish the onboarding flow I keep redesigning",
-    deadline: "2026-09-26",
+    deadline: "2026-09-26T23:59:00Z",
     status: "FAILED",
     timeLabel: "2d 1h",
-    watchers: 311,
   },
   {
-    id: 1035,
-    creator: "priya.builds",
+    slug: "get-10-paying-users-for-my-notion-template",
+    creator: creator("priya_builds"),
     title: "Get 10 paying users for my Notion template",
-    deadline: "2026-10-04",
+    deadline: "2026-10-04T23:59:00Z",
     status: "ACTIVE",
     timeLabel: "5d 2h",
-    watchers: 64,
   },
   {
-    id: 1031,
-    creator: "solofounder",
+    slug: "rewrite-my-landing-page-copy-for-the-4th-time",
+    creator: creator("solofounder"),
     title: "Rewrite my landing page copy (for the 4th time)",
-    deadline: "2026-09-27",
+    deadline: "2026-09-27T18:00:00Z",
     status: "SHIPPED",
     timeLabel: "1d 6h",
-    watchers: 58,
   },
   {
-    id: 1028,
-    creator: "leo",
+    slug: "open-source-my-dotfiles-cli",
+    creator: creator("leo"),
     title: "Open-source my dotfiles CLI",
-    deadline: "2026-09-25",
+    deadline: "2026-09-25T23:59:00Z",
     status: "FAILED",
     timeLabel: "6h",
-    watchers: 97,
   },
 ];
 

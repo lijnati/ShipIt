@@ -15,7 +15,7 @@ export function ShipLog() {
     >
       <div className="flex w-max gap-8 px-4">
         {recentChallenges.map((c) => (
-          <span key={c.id}>
+          <span key={c.slug}>
             <span
               className={
                 c.status === "SHIPPED"
@@ -27,7 +27,7 @@ export function ShipLog() {
             >
               {verbs[c.status].mark}
             </span>{" "}
-            @{c.creator} {verbs[c.status].text}{" "}
+            @{c.creator.username} {verbs[c.status].text}{" "}
             <span className="opacity-70">{c.title.toLowerCase()}</span>
           </span>
         ))}
