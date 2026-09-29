@@ -1,0 +1,3 @@
+ALTER TABLE "challenges" ADD COLUMN "proof_url" text;--> statement-breakpoint
+ALTER TABLE "challenges" ADD CONSTRAINT "challenges_proof_url_scheme" CHECK ("challenges"."proof_url" is null or "challenges"."proof_url" ~ '^https?://');--> statement-breakpoint
+ALTER TABLE "challenges" ADD CONSTRAINT "challenges_proof_url_requires_shipped" CHECK ("challenges"."proof_url" is null or "challenges"."status" = 'shipped');

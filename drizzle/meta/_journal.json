@@ -15,6 +15,13 @@
       "when": 1790685675813,
       "tag": "0001_create_challenges",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790688993502,
+      "tag": "0002_add_proof_url",
+      "breakpoints": true
     }
   ]
 }

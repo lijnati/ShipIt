@@ -29,6 +29,9 @@ export const challenges = pgTable(
     projectUrl: text("project_url"),
     status: challengeStatus("status").notNull().default("active"),
     shippedAt: timestamp("shipped_at", { withTimezone: true }),
+    // Evidence supplied when marking shipped. Separate from projectUrl, which
+    // is what the challenge is about, not proof that it happened.
+    proofUrl: text("proof_url"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .notNull()
@@ -54,6 +57,14 @@ export const challenges = pgTable(
     check(
       "challenges_project_url_scheme",
       sql`${table.projectUrl} is null or ${table.projectUrl} ~ '^https?://'`,
+    ),
+    check(
+      "challenges_proof_url_scheme",
+      sql`${table.proofUrl} is null or ${table.proofUrl} ~ '^https?://'`,
+    ),
+    check(
+      "challenges_proof_url_requires_shipped",
+      sql`${table.proofUrl} is null or ${table.status} = 'shipped'`,
     ),
     check(
       "challenges_shipped_at_matches_status",
