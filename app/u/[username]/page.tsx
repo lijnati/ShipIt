@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { Avatar } from "@/components/shipit/avatar";
+import { ChallengeCard, toChallengeCard } from "@/components/shipit/challenge-card";
+import { getChallengesByUserId } from "@/db/queries/challenges";
 import { getUserByUsername } from "@/db/queries/users";
 import { validateUsername } from "@/lib/username";
 
@@ -8,7 +11,8 @@ import { validateUsername } from "@/lib/username";
 const findProfile = cache(async (param: string) => {
   const result = validateUsername(decodeURIComponent(param));
   if (!result.ok) return null;
-  return getUserByUsername(result.username);
+  const user = await getUserByUsername(result.username);
+  return user?.username ? { ...user, username: user.username } : null;
 });
 
 const joinedFormatter = new Intl.DateTimeFormat("en-US", {
@@ -22,37 +26,54 @@ export async function generateMetadata({
 }: PageProps<"/u/[username]">): Promise<Metadata> {
   const { username } = await params;
   const user = await findProfile(username);
-  return { title: user?.username ? `@${user.username}` : "Profile not found" };
+  return { title: user ? `@${user.username}` : "Profile not found" };
 }
 
 export default async function ProfilePage({ params }: PageProps<"/u/[username]">) {
   const { username } = await params;
   const user = await findProfile(username);
-  if (!user?.username) notFound();
+  if (!user) notFound();
+
+  const challenges = await getChallengesByUserId(user.id);
+  // Only public fields reach the cards.
+  const creator = { username: user.username, avatarUrl: user.avatarUrl };
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
       <div className="flex items-center gap-4">
-        <span
-          aria-hidden="true"
-          className="grid size-16 place-items-center border-2 border-foreground bg-brand font-mono text-2xl font-bold uppercase shadow-brutal"
-        >
-          {user.username.charAt(0)}
-        </span>
+        <Avatar
+          username={user.username}
+          avatarUrl={user.avatarUrl}
+          size={64}
+          className="shadow-brutal"
+        />
         <div>
           <h1 className="font-heading text-4xl font-black tracking-tighter sm:text-5xl">
             @{user.username}
           </h1>
-          {user.displayName && (
-            <p className="text-muted-foreground">{user.displayName}</p>
-          )}
+          {user.displayName && <p className="text-muted-foreground">{user.displayName}</p>}
         </div>
       </div>
 
-      <p className="mt-10 border-2 border-dashed border-foreground/40 px-4 py-6 font-mono text-sm">
-        No shipping history yet.
+      <p className="mt-8 font-mono text-sm font-bold">
+        {challenges.length} public {challenges.length === 1 ? "promise" : "promises"}
       </p>
-      <p className="mt-4 font-mono text-xs text-muted-foreground">
+
+      {challenges.length === 0 ? (
+        <p className="mt-4 border-2 border-dashed border-foreground/40 px-4 py-6 font-mono text-sm">
+          No shipping history yet.
+        </p>
+      ) : (
+        <ul className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {challenges.map((challenge) => (
+            <li key={challenge.slug} className="flex">
+              <ChallengeCard challenge={toChallengeCard(challenge, creator)} className="w-full" />
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <p className="mt-10 font-mono text-xs text-muted-foreground">
         On ShipIt since {joinedFormatter.format(user.createdAt)}
       </p>
     </section>
