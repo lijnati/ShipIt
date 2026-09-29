@@ -1,26 +1,93 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-archivo);
+  --font-heading: var(--font-archivo);
+  --font-mono: var(--font-jetbrains-mono);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-active: var(--active);
+  --color-shipped: var(--shipped);
+  --color-failed: var(--failed);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --background: #f4f1e9;
+  --foreground: #0b0b0b;
+  --card: #ffffff;
+  --card-foreground: #0b0b0b;
+  --popover: #ffffff;
+  --popover-foreground: #0b0b0b;
+  --primary: #0b0b0b;
+  --primary-foreground: #f4f1e9;
+  --secondary: #e8e3d6;
+  --secondary-foreground: #0b0b0b;
+  --muted: #e8e3d6;
+  --muted-foreground: #57524a;
+  --accent: #e8e3d6;
+  --accent-foreground: #0b0b0b;
+  --destructive: #e5261b;
+  --border: #0b0b0b;
+  --input: #0b0b0b;
+  --ring: #ff4f00;
+  --radius: 0rem;
+
+  /* ShipIt */
+  --brand: #ff4f00;
+  --brand-foreground: #0b0b0b;
+  --active: #ffd60a;
+  --shipped: #2fe06f;
+  --failed: #ff3b30;
+}
+
+@utility shadow-brutal {
+  box-shadow: 4px 4px 0 0 var(--foreground);
+}
+
+@utility shadow-brutal-lg {
+  box-shadow: 8px 8px 0 0 var(--foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  html {
+    @apply scroll-smooth font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  ::selection {
+    @apply bg-brand text-brand-foreground;
+  }
 }
