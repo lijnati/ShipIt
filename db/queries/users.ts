@@ -1,11 +1,11 @@
 import "server-only";
 import { and, eq, isNull } from "drizzle-orm";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { users, type User } from "@/db/schema";
 import { validateUsername } from "@/lib/username";
 
 export async function getUserByClerkId(clerkUserId: string): Promise<User | null> {
-  const [user] = await db
+  const [user] = await getDb()
     .select()
     .from(users)
     .where(eq(users.clerkUserId, clerkUserId))
@@ -14,7 +14,7 @@ export async function getUserByClerkId(clerkUserId: string): Promise<User | null
 }
 
 export async function getUserByUsername(username: string): Promise<User | null> {
-  const [user] = await db
+  const [user] = await getDb()
     .select()
     .from(users)
     .where(eq(users.username, username))
@@ -62,7 +62,7 @@ export async function createOrSyncUser(profile: ClerkProfile): Promise<User> {
 }
 
 async function upsertUser(profile: ClerkProfile, username: string | null): Promise<User> {
-  const [user] = await db
+  const [user] = await getDb()
     .insert(users)
     .values({
       clerkUserId: profile.clerkUserId,
@@ -89,7 +89,7 @@ export async function claimUsername(
   username: string,
 ): Promise<"claimed" | "taken" | "already-set"> {
   try {
-    const [updated] = await db
+    const [updated] = await getDb()
       .update(users)
       .set({ username })
       .where(and(eq(users.id, userId), isNull(users.username)))
