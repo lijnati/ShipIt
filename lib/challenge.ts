@@ -59,7 +59,7 @@ export function validateChallenge(input: ChallengeInput, now: Date): ChallengeVa
     errors.description = `Keep it under ${DESCRIPTION_MAX_LENGTH} characters.`;
   }
 
-  const projectUrl = normalizeProjectUrl(input.projectUrl);
+  const projectUrl = normalizeWebUrl(input.projectUrl);
   if (projectUrl === false) {
     errors.projectUrl = "That doesn't look like a web link. Use something like myapp.com.";
   }
@@ -96,7 +96,7 @@ function parseDeadline(value: string): Date | null {
  * null when empty, false when invalid, else a normalized http(s) URL.
  * Bare domains get https://. Any other scheme (javascript:, data:, file:…) is rejected.
  */
-export function normalizeProjectUrl(value: string): string | null | false {
+export function normalizeWebUrl(value: string): string | null | false {
   const trimmed = value.trim();
   if (!trimmed) return null;
   if (trimmed.length > PROJECT_URL_MAX_LENGTH) return false;

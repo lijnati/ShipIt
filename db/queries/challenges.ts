@@ -1,5 +1,5 @@
 import "server-only";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, gt, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { challenges, type Challenge } from "@/db/schema";
 import { isUniqueViolation } from "@/db/queries/users";
@@ -37,6 +37,46 @@ function randomSuffix(): string {
   // 4 base36 chars ≈ 1.7M combinations per base slug.
   const bytes = crypto.getRandomValues(new Uint8Array(4));
   return Array.from(bytes, (b) => (b % 36).toString(36)).join("");
+}
+
+export type ShipOutcome = "shipped" | "not-found" | "not-owner" | "already-shipped" | "too-late";
+
+/**
+ * Marks a challenge shipped, if and only if it belongs to `userId`, is still
+ * active, and its deadline hasn't passed — all checked in one UPDATE against
+ * the database clock, so replays and races can't slip through. shipped_at is
+ * the database's now(), never a client time.
+ */
+export async function shipChallenge(
+  slug: string,
+  userId: string,
+  proofUrl: string | null,
+): Promise<ShipOutcome> {
+  const db = getDb();
+  const [updated] = await db
+    .update(challenges)
+    .set({ status: "shipped", shippedAt: sql`now()`, proofUrl })
+    .where(
+      and(
+        eq(challenges.slug, slug),
+        eq(challenges.userId, userId),
+        eq(challenges.status, "active"),
+        gt(challenges.deadline, sql`now()`),
+      ),
+    )
+    .returning({ slug: challenges.slug });
+  if (updated) return "shipped";
+
+  // Nothing matched. Work out why, for a human-readable message.
+  const [row] = await db
+    .select({ userId: challenges.userId, status: challenges.status })
+    .from(challenges)
+    .where(eq(challenges.slug, slug))
+    .limit(1);
+  if (!row) return "not-found";
+  if (row.userId !== userId) return "not-owner";
+  if (row.status === "shipped") return "already-shipped";
+  return "too-late";
 }
 
 /** A challenge plus only the public fields of its creator. */

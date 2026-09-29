@@ -6,7 +6,10 @@ import { ArrowUpRight } from "lucide-react";
 import { Avatar } from "@/components/shipit/avatar";
 import { LocalDateTime } from "@/components/shipit/local-date-time";
 import { buttonVariants } from "@/components/ui/button";
+import { ChallengeStatusPanel } from "@/app/c/[slug]/status-panel";
 import { getChallengeBySlug } from "@/db/queries/challenges";
+import { getCurrentShipItUser } from "@/lib/auth";
+import { getRequestTime } from "@/lib/request-time";
 import { cn } from "@/lib/utils";
 
 // Shared by generateMetadata and the page so the lookup runs once per request.
@@ -35,8 +38,10 @@ export default async function ChallengePage({ params }: PageProps<"/c/[slug]">) 
   if (!challenge) notFound();
 
   const { user } = challenge;
-  const shipped = challenge.status === "shipped";
-  const deadline = challenge.deadline.toISOString();
+  // Only decides whether to *show* the ship button; the action re-checks ownership.
+  const viewer = await getCurrentShipItUser();
+  const isOwner = viewer?.id === challenge.userId;
+  const serverNow = getRequestTime();
 
   return (
     <article className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-20">
@@ -62,27 +67,17 @@ export default async function ChallengePage({ params }: PageProps<"/c/[slug]">) 
         &ldquo;{challenge.title}&rdquo;
       </h1>
 
-      {/* By when + state */}
-      <div className="mt-10 grid border-2 border-foreground bg-card shadow-brutal-lg sm:grid-cols-[1fr_auto]">
-        <div className="border-b-2 border-foreground p-5 sm:border-r-2 sm:border-b-0 sm:p-6">
-          <p className="font-mono text-xs font-bold tracking-wide text-muted-foreground uppercase">By</p>
-          <p className="mt-1 font-heading text-3xl font-black tracking-tight uppercase sm:text-4xl">
-            <LocalDateTime value={deadline} format="date" />
-          </p>
-          <p className="font-mono text-lg font-bold">
-            <LocalDateTime value={deadline} format="time" showZone />
-          </p>
-        </div>
-        <div
-          className={cn(
-            "flex items-center justify-center p-5 font-mono text-2xl font-black tracking-widest uppercase sm:px-10",
-            shipped ? "bg-shipped" : "bg-active",
-          )}
-        >
-          <span className="sr-only">Status: </span>
-          {shipped ? "Shipped" : "Active"}
-        </div>
-      </div>
+      {/* State: the centerpiece */}
+      <ChallengeStatusPanel
+        slug={challenge.slug}
+        status={challenge.status}
+        deadline={challenge.deadline.toISOString()}
+        shippedAt={challenge.shippedAt?.toISOString() ?? null}
+        proofUrl={challenge.proofUrl}
+        creatorName={user.displayName ?? `@${user.username}`}
+        serverNow={serverNow}
+        canShip={isOwner}
+      />
 
       {/* Details */}
       {challenge.description && (
@@ -106,11 +101,6 @@ export default async function ChallengePage({ params }: PageProps<"/c/[slug]">) 
 
       <p className="mt-12 border-t-2 border-dashed border-foreground/40 pt-4 font-mono text-xs text-muted-foreground">
         Promised publicly on <LocalDateTime value={challenge.createdAt.toISOString()} format="date" />
-        {shipped && challenge.shippedAt && (
-          <>
-            {" "}· shipped <LocalDateTime value={challenge.shippedAt.toISOString()} format="date" />
-          </>
-        )}
       </p>
     </article>
   );
