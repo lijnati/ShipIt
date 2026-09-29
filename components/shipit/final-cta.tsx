@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { siteConfig } from "@/lib/site";
+import { routes } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 export function FinalCta() {
@@ -24,7 +24,7 @@ export function FinalCta() {
           Pick the thing. Pick the date. Let a few strangers keep you honest.
         </p>
         <Link
-          href={siteConfig.ctaHref}
+          href={routes.newChallenge}
           className={cn(
             buttonVariants({ variant: "brand", size: "xl" }),
             "mt-8 shadow-[4px_4px_0_0_var(--background)]! hover:shadow-[8px_8px_0_0_var(--background)]! active:shadow-none!",

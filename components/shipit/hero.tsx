@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ChallengeCard } from "@/components/shipit/challenge-card";
 import { featuredChallenge, mockStats } from "@/lib/mock-challenges";
-import { siteConfig } from "@/lib/site";
+import { routes } from "@/lib/site";
 
 export function Hero() {
   return (
@@ -38,7 +38,7 @@ export function Hero() {
 
         <div className="mt-8 flex flex-col gap-4 sm:flex-row">
           <Link
-            href={siteConfig.ctaHref}
+            href={routes.newChallenge}
             className={buttonVariants({ variant: "brand", size: "xl" })}
           >
             Put my reputation on the line

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Archivo, JetBrains_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Navbar } from "@/components/shipit/navbar";
 import { Footer } from "@/components/shipit/footer";
-import { siteConfig } from "@/lib/site";
+import { clerkAppearance } from "@/lib/clerk-appearance";
+import { routes, siteConfig } from "@/lib/site";
 import "./globals.css";
 
 const archivo = Archivo({
@@ -43,17 +45,26 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${archivo.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <a
-          href="#main"
-          className="sr-only z-50 bg-brand px-3 py-2 font-mono text-sm focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+        <ClerkProvider
+          signInUrl={routes.signIn}
+          signUpUrl={routes.signUp}
+          signInFallbackRedirectUrl={routes.dashboard}
+          signUpFallbackRedirectUrl={routes.onboarding}
+          afterSignOutUrl={routes.home}
+          appearance={clerkAppearance}
         >
-          Skip to content
-        </a>
-        <Navbar />
-        <main id="main" className="flex-1">
-          {children}
-        </main>
-        <Footer />
+          <a
+            href="#main"
+            className="sr-only z-50 bg-brand px-3 py-2 font-mono text-sm focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+          >
+            Skip to content
+          </a>
+          <Navbar />
+          <main id="main" className="flex-1">
+            {children}
+          </main>
+          <Footer />
+        </ClerkProvider>
       </body>
     </html>
   );
