@@ -2,9 +2,11 @@ export {};
 
 declare global {
   interface UserPublicMetadata {
-    /** ShipIt username. Written only by server code (see app/onboarding/actions.ts). */
+    /**
+     * LEGACY (Phase 2): ShipIt username from before Postgres. Read once, when a
+     * user's database row is created (see db/queries/users.ts). Never written
+     * anymore; the database is the source of truth.
+     */
     username?: string | null;
-    /** Epoch ms of the claim — used to resolve simultaneous claims. */
-    usernameClaimedAt?: number | null;
   }
 }

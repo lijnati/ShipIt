@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { currentUser, type User as ClerkUser } from "@clerk/nextjs/server";
 import { UsernameForm } from "@/app/onboarding/username-form";
-import { requireUser } from "@/lib/auth";
+import { requireShipItUser } from "@/lib/auth";
 import { routes } from "@/lib/site";
 import { USERNAME_MAX_LENGTH, validateUsername } from "@/lib/username";
 
 export const metadata: Metadata = { title: "Pick your username" };
 
 export default async function OnboardingPage() {
-  const user = await requireUser();
-  if (user.publicMetadata.username) redirect(routes.dashboard);
+  const user = await requireShipItUser();
+  if (user.username) redirect(routes.dashboard);
+
+  const clerkUser = await currentUser();
+  // A Phase 2 username that couldn't move to the database (someone owns it now).
+  const lostLegacyUsername = clerkUser?.publicMetadata.username ?? null;
 
   return (
     <section className="mx-auto max-w-xl px-4 py-12 sm:px-6 sm:py-20">
@@ -24,19 +29,29 @@ export default async function OnboardingPage() {
         and every one you break — lives there.
       </p>
 
+      {lostLegacyUsername && (
+        <p
+          role="status"
+          className="mt-6 border-2 border-foreground bg-active px-4 py-3 font-mono text-sm"
+        >
+          We couldn&apos;t keep <strong>@{lostLegacyUsername}</strong> for you —
+          it belongs to someone else now. Pick a new one.
+        </p>
+      )}
+
       <div className="mt-10 border-2 border-foreground bg-card p-5 shadow-brutal-lg sm:p-8">
-        <UsernameForm suggestion={suggestUsername(user)} />
+        <UsernameForm
+          suggestion={
+            clerkUser && !lostLegacyUsername ? suggestUsername(clerkUser) : ""
+          }
+        />
       </div>
     </section>
   );
 }
 
 /** Best-effort prefill from what Clerk already knows. Empty if nothing valid. */
-function suggestUsername(user: {
-  username: string | null;
-  firstName: string | null;
-  primaryEmailAddress: { emailAddress: string } | null;
-}): string {
+function suggestUsername(user: ClerkUser): string {
   const source =
     user.username ??
     user.primaryEmailAddress?.emailAddress.split("@")[0] ??
