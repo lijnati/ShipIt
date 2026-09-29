@@ -8,6 +8,13 @@
       "when": 1790682907221,
       "tag": "0000_create_users",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790685675813,
+      "tag": "0001_create_challenges",
+      "breakpoints": true
     }
   ]
 }
