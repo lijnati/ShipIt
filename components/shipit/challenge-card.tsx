@@ -54,7 +54,7 @@ export function ChallengeCard({
     <article
       aria-labelledby={titleId}
       className={cn(
-        "relative flex flex-col border-2 border-foreground bg-card text-card-foreground transition-colors",
+        "relative flex min-w-0 flex-col border-2 border-foreground bg-card text-card-foreground transition-colors",
         featured ? "shadow-brutal-lg" : "shadow-brutal",
         linked && "transition-transform focus-within:-translate-y-0.5 hover:-translate-y-0.5",
         className,
@@ -65,13 +65,13 @@ export function ChallengeCard({
           <span aria-hidden="true" className={cn("size-2", style.color)} />
           {style.label}
         </span>
-        <span className="truncate text-muted-foreground">/c/{challenge.slug}</span>
+        <span className="min-w-0 truncate text-muted-foreground">/c/{challenge.slug}</span>
       </header>
 
       <div className="flex flex-1 flex-col gap-4 p-4 sm:p-5">
-        <p className="flex items-center gap-2 text-sm">
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
           <Avatar username={challenge.creator.username} avatarUrl={challenge.creator.avatarUrl} />
-          <span className="font-mono font-bold">@{challenge.creator.username}</span>
+          <span className="min-w-0 font-mono font-bold break-all">@{challenge.creator.username}</span>
           <span className="text-muted-foreground">promised to</span>
         </p>
 

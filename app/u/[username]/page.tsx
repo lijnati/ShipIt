@@ -84,8 +84,8 @@ export default async function ProfilePage({ params }: PageProps<"/u/[username]">
           size={64}
           className="shadow-brutal"
         />
-        <div>
-          <h1 className="font-heading text-4xl font-black tracking-tighter sm:text-5xl">
+        <div className="min-w-0">
+          <h1 className="font-heading text-3xl font-black tracking-tighter break-all sm:text-5xl">
             @{user.username}
           </h1>
           {user.displayName && <p className="text-muted-foreground">{user.displayName}</p>}
@@ -97,11 +97,11 @@ export default async function ProfilePage({ params }: PageProps<"/u/[username]">
       </p>
 
       {challenges.length === 0 ? (
-        <p className="mt-4 border-2 border-dashed border-foreground/40 px-4 py-6 font-mono text-sm">
-          No shipping history yet.
+        <p className="mt-4 border-2 border-dashed border-foreground/40 px-4 py-6 font-mono text-sm break-words">
+          @{user.username} hasn&apos;t put their reputation on the line yet.
         </p>
       ) : (
-        <ul className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {challenges.map((challenge) => (
             <li key={challenge.slug} className="flex">
               <ChallengeCard
