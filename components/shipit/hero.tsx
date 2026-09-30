@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ChallengeCard } from "@/components/shipit/challenge-card";
-import { featuredChallenge, mockStats } from "@/lib/mock-challenges";
+import { featuredChallenge } from "@/lib/mock-challenges";
 import { routes, siteConfig } from "@/lib/site";
 
 export function Hero() {
@@ -11,7 +11,7 @@ export function Hero() {
       aria-labelledby="hero-title"
       className="mx-auto grid max-w-6xl gap-12 px-4 pt-12 pb-16 sm:px-6 sm:pt-20 sm:pb-24 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-16"
     >
-      <div>
+      <div className="min-w-0">
         <p className="mb-6 inline-block border-2 border-foreground bg-card px-2 py-1 font-mono text-xs tracking-wide uppercase">
           <span className="text-brand">●</span> Public accountability for
           makers
@@ -52,19 +52,14 @@ export function Hero() {
           </Link>
         </div>
 
-        <dl className="mt-10 flex flex-wrap gap-x-8 gap-y-3 font-mono text-sm">
-          {mockStats.map((stat) => (
-            <div key={stat.label} className="flex items-baseline gap-2">
-              <dt className="order-2 text-muted-foreground">{stat.label}</dt>
-              <dd className="order-1 text-lg font-bold">{stat.value}</dd>
-            </div>
-          ))}
-        </dl>
+        <p className="mt-10 font-mono text-sm text-muted-foreground">
+          Free. Public by default. No moving the deadline.
+        </p>
       </div>
 
-      <div className="mx-auto w-full max-w-md lg:max-w-none">
+      <div className="mx-auto w-full min-w-0 max-w-md lg:max-w-none">
         <p className="mb-3 truncate font-mono text-xs text-muted-foreground">
-          {siteConfig.domain}/c/
+          <span className="font-bold uppercase">Example</span> · {siteConfig.domain}/c/
           <span className="text-foreground">ship-my-contract-reminder-mvp</span>
         </p>
         <ChallengeCard

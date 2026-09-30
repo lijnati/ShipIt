@@ -1,7 +1,7 @@
 import "server-only";
-import { and, desc, eq, gt, sql } from "drizzle-orm";
+import { and, desc, eq, gt, isNotNull, sql } from "drizzle-orm";
 import { getDb } from "@/db";
-import { challenges, type Challenge } from "@/db/schema";
+import { challenges, users, type Challenge } from "@/db/schema";
 import { isUniqueViolation } from "@/db/queries/users";
 import { slugifyTitle, type ValidChallenge } from "@/lib/challenge";
 
@@ -88,6 +88,37 @@ export async function getChallengeBySlug(slug: string) {
     },
   });
   return challenge ?? null;
+}
+
+/** Newest public challenges with their creator's public fields (landing page). */
+export async function getRecentChallenges(limit: number) {
+  const rows = await getDb().query.challenges.findMany({
+    orderBy: desc(challenges.createdAt),
+    limit,
+    columns: { slug: true, title: true, deadline: true, status: true, shippedAt: true },
+    with: { user: { columns: { username: true, avatarUrl: true } } },
+  });
+  return rows.flatMap(({ user, ...challenge }) =>
+    user.username ? [{ ...challenge, creator: { username: user.username, avatarUrl: user.avatarUrl } }] : [],
+  );
+}
+
+/** Public URLs for the sitemap: every challenge and every profile with a username. */
+export async function getSitemapEntries() {
+  const db = getDb();
+  const [challengeRows, profileRows] = await Promise.all([
+    db
+      .select({ slug: challenges.slug, updatedAt: challenges.updatedAt })
+      .from(challenges)
+      .orderBy(desc(challenges.createdAt))
+      .limit(20_000),
+    db
+      .select({ username: users.username, updatedAt: users.updatedAt })
+      .from(users)
+      .where(isNotNull(users.username))
+      .limit(20_000),
+  ]);
+  return { challenges: challengeRows, profiles: profileRows };
 }
 
 /** One user's challenges, newest first. */
