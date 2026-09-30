@@ -4,9 +4,11 @@ import { cache } from "react";
 import { Avatar } from "@/components/shipit/avatar";
 import { ChallengeCard } from "@/components/shipit/challenge-card";
 import { getChallengesByUserId } from "@/db/queries/challenges";
+import { getReactionCountsForUserChallenges } from "@/db/queries/reactions";
 import { getUserByUsername } from "@/db/queries/users";
 import { toChallengeCard } from "@/lib/challenge-card";
 import { getChallengeState } from "@/lib/challenge-status";
+import { emptyReactionCounts, totalReactions } from "@/lib/reactions";
 import { getRequestTime } from "@/lib/request-time";
 import { profilePath, siteConfig } from "@/lib/site";
 import { validateUsername } from "@/lib/username";
@@ -70,7 +72,12 @@ export default async function ProfilePage({ params }: PageProps<"/u/[username]">
   const user = await findProfile(username);
   if (!user) notFound();
 
-  const challenges = await listChallenges(user.id);
+  const [challenges, reactionCounts] = await Promise.all([
+    listChallenges(user.id),
+    getReactionCountsForUserChallenges(user.id),
+  ]);
+  let reactionsReceived = 0;
+  for (const counts of reactionCounts.values()) reactionsReceived += totalReactions(counts);
   // Only public fields reach the cards.
   const creator = { username: user.username, avatarUrl: user.avatarUrl };
   const serverNow = getRequestTime();
@@ -94,6 +101,12 @@ export default async function ProfilePage({ params }: PageProps<"/u/[username]">
 
       <p className="mt-8 font-mono text-sm font-bold">
         {challenges.length} public {challenges.length === 1 ? "promise" : "promises"}
+        {reactionsReceived > 0 && (
+          <span className="font-normal text-muted-foreground">
+            {" "}
+            · {reactionsReceived} {reactionsReceived === 1 ? "reaction" : "reactions"} received
+          </span>
+        )}
       </p>
 
       {challenges.length === 0 ? (
@@ -105,7 +118,10 @@ export default async function ProfilePage({ params }: PageProps<"/u/[username]">
           {challenges.map((challenge) => (
             <li key={challenge.slug} className="flex">
               <ChallengeCard
-                challenge={toChallengeCard(challenge, creator)}
+                challenge={{
+                  ...toChallengeCard(challenge, creator),
+                  reactions: reactionCounts.get(challenge.id) ?? emptyReactionCounts(),
+                }}
                 serverNow={serverNow}
                 className="w-full"
               />

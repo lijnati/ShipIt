@@ -11,6 +11,7 @@ import {
   stateStyles,
   type ChallengeState,
 } from "@/lib/challenge-status";
+import { reactions, totalReactions, type ReactionCounts } from "@/lib/reactions";
 import { useNow } from "@/lib/use-now";
 import { cn } from "@/lib/utils";
 
@@ -107,6 +108,8 @@ export function ChallengeCard({
             </dd>
           </div>
         </dl>
+
+        {challenge.reactions && <ReactionTally counts={challenge.reactions} />}
       </div>
 
       <footer
@@ -174,5 +177,23 @@ function CardFooterText({
       <span className="text-sm">missed</span>
       <LocalDateTime value={challenge.deadline} format="date" className="text-lg font-bold" />
     </>
+  );
+}
+
+/** Compact read-only reaction totals. Hidden when there are none. */
+function ReactionTally({ counts }: { counts: ReactionCounts }) {
+  if (totalReactions(counts) === 0) return null;
+  const shown = reactions.filter((r) => counts[r.type] > 0);
+  return (
+    <p className="-mt-1 flex flex-wrap gap-x-3 font-mono text-xs">
+      <span className="sr-only">
+        Reactions: {shown.map((r) => `${counts[r.type]} ${r.label}`).join(", ")}
+      </span>
+      {shown.map((r) => (
+        <span key={r.type} aria-hidden="true" className="tabular-nums">
+          {r.emoji} {counts[r.type]}
+        </span>
+      ))}
+    </p>
   );
 }

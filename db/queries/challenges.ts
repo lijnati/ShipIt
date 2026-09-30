@@ -1,9 +1,11 @@
 import "server-only";
-import { and, desc, eq, gt, isNotNull, sql } from "drizzle-orm";
+import { and, desc, eq, gt, isNotNull, lte, sql } from "drizzle-orm";
 import { getDb } from "@/db";
-import { challenges, users, type Challenge } from "@/db/schema";
+import { challengeReactions, challenges, users, type Challenge } from "@/db/schema";
+import { reactionCountColumns, reactionTotal } from "@/db/queries/reactions";
 import { isUniqueViolation } from "@/db/queries/users";
 import { slugifyTitle, type ValidChallenge } from "@/lib/challenge";
+import { toChallengeCard, type ChallengeCardData } from "@/lib/challenge-card";
 
 const SLUG_ATTEMPTS = 5;
 
@@ -90,17 +92,80 @@ export async function getChallengeBySlug(slug: string) {
   return challenge ?? null;
 }
 
-/** Newest public challenges with their creator's public fields (landing page). */
-export async function getRecentChallenges(limit: number) {
-  const rows = await getDb().query.challenges.findMany({
-    orderBy: desc(challenges.createdAt),
-    limit,
-    columns: { slug: true, title: true, deadline: true, status: true, shippedAt: true },
-    with: { user: { columns: { username: true, avatarUrl: true } } },
-  });
-  return rows.flatMap(({ user, ...challenge }) =>
-    user.username ? [{ ...challenge, creator: { username: user.username, avatarUrl: user.avatarUrl } }] : [],
+export type ChallengeSort = "recent" | "popular";
+export type ChallengeStateFilter = "active" | "shipped" | "failed";
+
+/** Popular only looks at recent promises. Plain reaction totals, no trend math. */
+const POPULAR_WINDOW = sql`now() - interval '30 days'`;
+
+type ListChallengeCardsOptions = {
+  sort: ChallengeSort;
+  /** Derived state, matching getChallengeState (FAILED = active and past deadline). */
+  state?: ChallengeStateFilter;
+  limit: number;
+  offset?: number;
+};
+
+/**
+ * Public challenge cards with creator and reaction counts — one query, no
+ * per-card lookups. Reactions are left-joined and aggregated per challenge.
+ *
+ * - recent: newest first.
+ * - popular: most reactions first (ties: newer first), created in the last
+ *   30 days, and only challenges with at least one reaction.
+ */
+export async function listChallengeCards({
+  sort,
+  state,
+  limit,
+  offset = 0,
+}: ListChallengeCardsOptions): Promise<ChallengeCardData[]> {
+  const conditions = [isNotNull(users.username)];
+  if (state === "active") {
+    conditions.push(eq(challenges.status, "active"), gt(challenges.deadline, sql`now()`));
+  } else if (state === "failed") {
+    conditions.push(eq(challenges.status, "active"), lte(challenges.deadline, sql`now()`));
+  } else if (state === "shipped") {
+    conditions.push(eq(challenges.status, "shipped"));
+  }
+  if (sort === "popular") conditions.push(gt(challenges.createdAt, POPULAR_WINDOW));
+
+  const rows = await getDb()
+    .select({
+      slug: challenges.slug,
+      title: challenges.title,
+      deadline: challenges.deadline,
+      status: challenges.status,
+      shippedAt: challenges.shippedAt,
+      username: users.username,
+      avatarUrl: users.avatarUrl,
+      ...reactionCountColumns,
+    })
+    .from(challenges)
+    .innerJoin(users, eq(users.id, challenges.userId))
+    .leftJoin(challengeReactions, eq(challengeReactions.challengeId, challenges.id))
+    .where(and(...conditions))
+    // Grouping by both primary keys lets us select their other columns.
+    .groupBy(challenges.id, users.id)
+    .having(sort === "popular" ? gt(reactionTotal, 0) : undefined)
+    .orderBy(
+      ...(sort === "popular"
+        ? [desc(reactionTotal), desc(challenges.createdAt)]
+        : [desc(challenges.createdAt)]),
+    )
+    .limit(limit)
+    .offset(offset);
+
+  return rows.flatMap(({ username, avatarUrl, fire, respect, skull, ...challenge }) =>
+    username
+      ? [{ ...toChallengeCard(challenge, { username, avatarUrl }), reactions: { fire, respect, skull } }]
+      : [],
   );
+}
+
+/** Newest public challenges (landing page). */
+export function getRecentChallenges(limit: number): Promise<ChallengeCardData[]> {
+  return listChallengeCards({ sort: "recent", limit });
 }
 
 /** Public URLs for the sitemap: every challenge and every profile with a username. */
