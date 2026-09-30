@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ChallengeForm } from "@/app/new/challenge-form";
 import { requireUsername } from "@/lib/auth";
 
-export const metadata: Metadata = { title: "New challenge" };
+export const metadata: Metadata = { title: "New challenge", robots: { index: false, follow: false } };
 
 export default async function NewChallengePage() {
   // The main CTA lands here; signed-out visitors are almost always new.

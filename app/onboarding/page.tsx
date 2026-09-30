@@ -6,7 +6,7 @@ import { requireShipItUser } from "@/lib/auth";
 import { routes } from "@/lib/site";
 import { USERNAME_MAX_LENGTH, validateUsername } from "@/lib/username";
 
-export const metadata: Metadata = { title: "Pick your username" };
+export const metadata: Metadata = { title: "Pick your username", robots: { index: false, follow: false } };
 
 export default async function OnboardingPage() {
   const user = await requireShipItUser();

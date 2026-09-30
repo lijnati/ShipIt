@@ -3,7 +3,7 @@ import { SignIn } from "@clerk/nextjs";
 import { AuthShell } from "@/components/shipit/auth-shell";
 import { routes } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Sign in" };
+export const metadata: Metadata = { title: "Sign in", robots: { index: false, follow: false } };
 
 export default function SignInPage() {
   return (
