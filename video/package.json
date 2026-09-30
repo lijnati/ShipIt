@@ -1,0 +1,27 @@
+{
+  "name": "shipit-launch-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-assets.mjs",
+    "music": "node scripts/make-music.mjs && remotion ffmpeg -y -loglevel error -i public/music.wav -codec:a libmp3lame -b:a 192k public/music.mp3",
+    "studio": "node scripts/sync-assets.mjs && remotion studio src/index.ts",
+    "render": "node scripts/sync-assets.mjs && remotion render src/index.ts ShipItLaunch out/shipit-launch.mp4 --codec=h264 --crf=18",
+    "still": "node scripts/sync-assets.mjs && remotion still src/index.ts ShipItLaunch",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "packageManager": "pnpm@11.13.1",
+  "dependencies": {
+    "@remotion/cli": "4.0.530",
+    "@remotion/fonts": "4.0.530",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "remotion": "4.0.530"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.2"
+  }
+}
