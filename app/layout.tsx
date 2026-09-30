@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/next";
 import { Navbar } from "@/components/shipit/navbar";
 import { Footer } from "@/components/shipit/footer";
 import { clerkAppearance } from "@/lib/clerk-appearance";
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </main>
           <Footer />
         </ClerkProvider>
+        <Analytics />
       </body>
     </html>
   );
