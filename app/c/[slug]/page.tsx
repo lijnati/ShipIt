@@ -6,14 +6,16 @@ import { ArrowUpRight } from "lucide-react";
 import { Avatar } from "@/components/shipit/avatar";
 import { LocalDateTime } from "@/components/shipit/local-date-time";
 import { buttonVariants } from "@/components/ui/button";
+import { ReactionBar } from "@/app/c/[slug]/reaction-bar";
 import { ChallengeStatusPanel } from "@/app/c/[slug]/status-panel";
 import { getChallengeBySlug } from "@/db/queries/challenges";
+import { getReactionSummary } from "@/db/queries/reactions";
 import { getCurrentShipItUser } from "@/lib/auth";
 import { ShareChallenge } from "@/components/shipit/share-challenge";
 import { getChallengeState } from "@/lib/challenge-status";
 import { getRequestTime } from "@/lib/request-time";
 import { getChallengeMeta } from "@/lib/share";
-import { challengePath, siteConfig } from "@/lib/site";
+import { challengePath, routes, siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 // Shared by generateMetadata and the page so the lookup runs once per request.
@@ -60,6 +62,11 @@ export default async function ChallengePage({ params }: PageProps<"/c/[slug]">) 
   const viewer = await getCurrentShipItUser();
   const isOwner = viewer?.id === challenge.userId;
   const serverNow = getRequestTime();
+  const reactionSummary = await getReactionSummary(challenge.id, viewer?.id ?? null);
+  // Signed-out reactions go through sign-in and come back here.
+  const signInToReact = viewer
+    ? null
+    : `${routes.signIn}?redirect_url=${encodeURIComponent(challengePath(challenge.slug))}`;
 
   return (
     <article className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-20">
@@ -106,6 +113,13 @@ export default async function ChallengePage({ params }: PageProps<"/c/[slug]">) 
         deadline={challenge.deadline.toISOString()}
         serverNow={serverNow}
         perspective={isOwner ? "owner" : "visitor"}
+      />
+
+      <ReactionBar
+        slug={challenge.slug}
+        counts={reactionSummary.counts}
+        mine={reactionSummary.mine}
+        signInHref={signInToReact}
       />
 
       {/* Details */}

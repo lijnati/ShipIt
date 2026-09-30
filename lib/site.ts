@@ -32,6 +32,7 @@ export const routes = {
   onboarding: "/onboarding",
   dashboard: "/dashboard",
   newChallenge: "/new",
+  explore: "/explore",
 } as const;
 
 export const challengePath = (slug: string) => `/c/${slug}`;
@@ -39,5 +40,5 @@ export const profilePath = (username: string) => `/u/${username}`;
 
 export const navLinks = [
   { href: "/#how-it-works", label: "How it works" },
-  { href: "/#shipping", label: "Who's shipping" },
+  { href: "/explore", label: "Explore" },
 ] as const;

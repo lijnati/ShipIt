@@ -16,15 +16,7 @@ export const revalidate = 60;
 
 async function loadRecent(): Promise<ChallengeCardData[]> {
   try {
-    const rows = await getRecentChallenges(6);
-    return rows.map((c) => ({
-      slug: c.slug,
-      title: c.title,
-      deadline: c.deadline.toISOString(),
-      status: c.status,
-      shippedAt: c.shippedAt?.toISOString() ?? null,
-      creator: c.creator,
-    }));
+    return await getRecentChallenges(6);
   } catch (error) {
     // The landing page must never go down with the database; show the empty state.
     console.error("[home] recent challenges unavailable", error);

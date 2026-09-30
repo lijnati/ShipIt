@@ -56,13 +56,21 @@ export function RecentChallenges({ challenges, serverNow }: RecentChallengesProp
         </div>
 
         {challenges.length > 0 ? (
-          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {challenges.map((challenge) => (
-              <li key={challenge.slug} className="flex">
-                <ChallengeCard challenge={challenge} serverNow={serverNow} className="w-full" />
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {challenges.map((challenge) => (
+                <li key={challenge.slug} className="flex">
+                  <ChallengeCard challenge={challenge} serverNow={serverNow} className="w-full" />
+                </li>
+              ))}
+            </ul>
+            <div className="mt-10 flex justify-center">
+              <Link href={routes.explore} className={buttonVariants({ variant: "paper", size: "xl" })}>
+                Explore all promises
+                <ArrowRight aria-hidden="true" />
+              </Link>
+            </div>
+          </>
         ) : (
           <div className="border-2 border-dashed border-foreground bg-background px-6 py-12 text-center">
             <p className="font-heading text-3xl font-black tracking-tight">

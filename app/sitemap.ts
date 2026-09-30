@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getSitemapEntries } from "@/db/queries/challenges";
-import { absoluteUrl, challengePath, profilePath } from "@/lib/site";
+import { absoluteUrl, challengePath, profilePath, routes } from "@/lib/site";
 
 // Regenerated at most hourly; public pages only.
 export const revalidate = 3600;
@@ -8,6 +8,7 @@ export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [
     { url: absoluteUrl("/"), changeFrequency: "daily", priority: 1 },
+    { url: absoluteUrl(routes.explore), changeFrequency: "hourly", priority: 0.8 },
   ];
 
   try {
